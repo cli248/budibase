@@ -27,7 +27,7 @@
       if (response.status !== 200) {
         throw new Error(`status ${response.status}`)
       } else {
-        notifications.success(`Application published successfully`)
+        notifications.success(`应用发布成功！`)
       }
     } catch (err) {
       analytics.captureException(err)
@@ -92,7 +92,7 @@
   onDestroy(() => clearInterval(poll))
 </script>
 
-<Button secondary on:click={publishModal.show}>Publish</Button>
+<Button secondary on:click={publishModal.show}>发布</Button>
 <Modal bind:this={feedbackModal}>
   <ModalContent
     title="Enjoying Budibase?"
@@ -105,13 +105,12 @@
 </Modal>
 <Modal bind:this={publishModal}>
   <ModalContent
-    title="Publish to Production"
-    confirmText="Publish"
+    title="发布上线"
+    confirmText="确认"
     onConfirm={deployApp}
   >
     <span
-      >The changes you have made will be published to the production version of
-      the application.</span
+      >最新的修改将被发布到应用程序的正式版本中。</span
     >
   </ModalContent>
 </Modal>

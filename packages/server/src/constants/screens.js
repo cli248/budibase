@@ -24,7 +24,7 @@ exports.createHomeScreen = () => ({
           active: {},
           selected: {},
         },
-        text: "Welcome to your Budibase App 👋",
+        text: "欢迎使用九思信源数据开发工具 👋",
         size: "M",
         align: "left",
         _instanceName: "Heading",

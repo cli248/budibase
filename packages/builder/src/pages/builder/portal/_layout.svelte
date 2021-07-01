@@ -24,36 +24,36 @@
   $: menu = buildMenu($auth.isAdmin)
 
   const buildMenu = admin => {
-    let menu = [{ title: "Apps", href: "/builder/portal/apps" }]
+    let menu = [{ title: "应用程序", href: "/builder/portal/apps" }]
     if (admin) {
       menu = menu.concat([
         {
-          title: "Users",
+          title: "用户",
           href: "/builder/portal/manage/users",
-          heading: "Manage",
+          heading: "权限管理",
         },
-        { title: "Auth", href: "/builder/portal/manage/auth" },
-        { title: "Email", href: "/builder/portal/manage/email" },
+        { title: "接口鉴权", href: "/builder/portal/manage/auth" },
+        { title: "邮箱", href: "/builder/portal/manage/email" },
         {
-          title: "Organisation",
+          title: "系统组织",
           href: "/builder/portal/settings/organisation",
-          heading: "Settings",
+          heading: "设置",
         },
         {
-          title: "Theming",
+          title: "主题模式",
           href: "/builder/portal/settings/theming",
         },
         {
-          title: "Updates",
+          title: "系统更新",
           href: "/builder/portal/settings/update",
         },
       ])
     } else {
       menu = menu.concat([
         {
-          title: "Theming",
+          title: "主题模式",
           href: "/builder/portal/settings/theming",
-          heading: "Settings",
+          heading: "设置",
         },
       ])
     }

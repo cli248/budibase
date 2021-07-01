@@ -58,24 +58,25 @@
     <Layout>
       <Layout noPadding justifyItems="center">
         <img alt="logo" src={$organisation.logoUrl || Logo} />
-        <Heading>Sign in to {company}</Heading>
+        <!-- <Heading>Sign in to {company}</Heading> -->
+        <Heading>九思信源自助开发平台</Heading>
       </Layout>
       <GoogleButton />
       <Divider noGrid />
       <Layout gap="XS" noPadding>
-        <Body size="S" textAlign="center">Sign in with email</Body>
-        <Input label="Email" bind:value={username} />
+        <Body size="S" textAlign="center">请使用邮箱账号登录</Body>
+        <Input label="邮箱" bind:value={username} />
         <Input
-          label="Password"
+          label="密码"
           type="password"
           on:change
           bind:value={password}
         />
       </Layout>
       <Layout gap="XS" noPadding>
-        <Button cta on:click={login}>Sign in to {company}</Button>
+        <Button cta on:click={login}>登录</Button>
         <ActionButton quiet on:click={() => $goto("./forgot")}>
-          Forgot password?
+          登录帮助
         </ActionButton>
       </Layout>
     </Layout>

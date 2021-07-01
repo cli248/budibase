@@ -191,8 +191,8 @@
       <div class="title">
         <Heading>Apps</Heading>
         <ButtonGroup>
-          <Button secondary on:click={initiateAppImport}>Import app</Button>
-          <Button cta on:click={initiateAppCreation}>Create new app</Button>
+          <Button secondary on:click={initiateAppImport}>应用导入</Button>
+          <Button cta on:click={initiateAppCreation}>应用创建</Button>
         </ButtonGroup>
       </div>
       <div class="filter">
@@ -253,7 +253,7 @@
           size="M"
         >
           <div slot="footer">
-            <Button on:click={initiateAppImport} secondary>Import app</Button>
+            <Button on:click={initiateAppImport} secondary>导入应用</Button>
           </div>
           <Body size="S">
             The purpose of the Budibase builder is to help you build beautiful,

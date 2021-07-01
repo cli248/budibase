@@ -122,8 +122,8 @@
 </script>
 
 <ModalContent
-  title={template ? "Import app" : "Create new app"}
-  confirmText={template ? "Import app" : "Create app"}
+  title={template ? "应用导入" : "应用创建"}
+  confirmText={template ? "应用导入" : "应用创建"}
   onConfirm={createNewApp}
   disabled={!valid}
 >
@@ -131,7 +131,7 @@
     <Dropzone
       error={$touched.file && $errors.file}
       gallery={false}
-      label="File to import"
+      label="要导入的文件"
       value={[$values.file]}
       on:change={e => {
         $values.file = e.detail?.[0]
@@ -140,14 +140,13 @@
     />
   {/if}
   <Body size="S">
-    Give your new app a name, and choose which groups have access (paid plans
-    only).
+    给你的新应用起个名字，并设置访问权限。
   </Body>
   <Input
     bind:value={$values.name}
     error={$touched.name && $errors.name}
     on:blur={() => ($touched.name = true)}
-    label="Name"
+    label="名字"
   />
-  <Checkbox label="Group access" disabled value={true} text="All users" />
+  <Checkbox label="访问权限" disabled value={true} text="所有用户" />
 </ModalContent>
