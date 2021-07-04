@@ -9,7 +9,8 @@
   <meta charset="utf8" />
   <meta name="viewport" content="width=device-width" />
 
-  <title>{title}</title>
+  <!-- <title>{title}</title> -->
+  <title>九思信源</title>
   <link rel="icon" type="image/png" href={favicon} />
   <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
   <link rel="preconnect" href="https://fonts.gstatic.com" />

@@ -41,7 +41,7 @@
 </script>
 
 <ModalContent
-  title="Create Datasource"
+  title="新建数据源"
   size="L"
   confirmText="Create"
   onConfirm={saveDatasource}
@@ -49,11 +49,11 @@
 >
   <Input
     data-cy="datasource-name-input"
-    label="Datasource Name"
+    label="名称"
     on:input={checkValid}
     bind:value={name}
     {error}
   />
-  <Label>Datasource Type</Label>
+  <Label>数据源类型</Label>
   <TableIntegrationMenu bind:integration />
 </ModalContent>

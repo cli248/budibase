@@ -80,7 +80,7 @@
         <div class="branding">
           <div class="name" on:click={() => $goto("./apps")}>
             <img src={$organisation?.logoUrl || Logo} alt="Logotype" />
-            <span>{$organisation?.company || "Budibase"}</span>
+            <span>{$organisation?.company || "九思信源"}</span>
           </div>
           <div class="onboarding">
             <ConfigChecklist />
