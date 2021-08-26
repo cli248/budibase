@@ -6,13 +6,22 @@
   import ErrorsBox from "components/common/ErrorsBox.svelte"
   import { roles } from "stores/backend"
 
+  const BASE_ROLE = { _id: "", inherits: "BASIC", permissionId: "Read/Write" }
+
   let basePermissions = []
-  let selectedRole = {}
+  let selectedRole = BASE_ROLE
   let errors = []
   let builtInRoles = ["Admin", "Power", "Basic", "Public"]
+  // Don't allow editing of public role
+  $: editableRoles = $roles.filter(role => role._id !== "PUBLIC")
   $: selectedRoleId = selectedRole._id
-  $: otherRoles = $roles.filter(role => role._id !== selectedRoleId)
+  $: otherRoles = editableRoles.filter(role => role._id !== selectedRoleId)
   $: isCreating = selectedRoleId == null || selectedRoleId === ""
+  $: valid =
+    selectedRole.name &&
+    selectedRole.inherits &&
+    selectedRole.permissionId &&
+    !builtInRoles.includes(selectedRole.name)
 
   const fetchBasePermissions = async () => {
     const permissionsResponse = await api.get("/api/permission/builtin")
@@ -30,7 +39,7 @@
         permissionId: role.permissionId ?? "",
       }
     } else {
-      selectedRole = { _id: "", inherits: "", permissionId: "" }
+      selectedRole = BASE_ROLE
     }
     errors = []
   }
@@ -86,6 +95,7 @@
   title="Edit Roles"
   confirmText={isCreating ? "Create" : "Save"}
   onConfirm={saveRole}
+  disabled={!valid}
 >
   {#if errors.length}
     <ErrorsBox {errors} />
@@ -96,7 +106,7 @@
     label="Role"
     value={selectedRoleId}
     on:change={changeRole}
-    options={$roles}
+    options={editableRoles}
     placeholder="Create new role"
     getOptionValue={role => role._id}
     getOptionLabel={role => role.name}
@@ -113,7 +123,7 @@
       options={otherRoles}
       getOptionValue={role => role._id}
       getOptionLabel={role => role.name}
-      placeholder="None"
+      disabled={builtInRoles.includes(selectedRole.name)}
     />
     <Select
       label="Base Permissions"
@@ -121,7 +131,7 @@
       options={basePermissions}
       getOptionValue={x => x._id}
       getOptionLabel={x => x.name}
-      placeholder="Choose permissions"
+      disabled={builtInRoles.includes(selectedRole.name)}
     />
   {/if}
   <div slot="footer">

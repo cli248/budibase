@@ -9,6 +9,7 @@
 
   export let value = []
   export let name
+  export let bindings
 
   let drawer
 
@@ -51,11 +52,11 @@
   }
 </script>
 
-<ActionButton on:click={drawer.show}>Define Actions</ActionButton>
+<ActionButton on:click={drawer.show}>Define actions</ActionButton>
 <Drawer bind:this={drawer} title={"Actions"}>
   <svelte:fragment slot="description">
     Define what actions to run.
   </svelte:fragment>
   <Button cta slot="buttons" on:click={saveEventData}>Save</Button>
-  <EventEditor slot="body" bind:actions={value} eventType={name} />
+  <EventEditor slot="body" bind:actions={value} eventType={name} {bindings} />
 </Drawer>

@@ -1,4 +1,5 @@
 const CouchDB = require("../../../db")
+const linkRows = require("../../../db/linkedRows")
 const csvParser = require("../../../utilities/csvParser")
 const {
   getRowParams,
@@ -74,6 +75,15 @@ exports.handleDataImport = async (appId, user, table, dataImport) => {
       const processed = inputProcessing(user, table, row)
       table = processed.table
       row = processed.row
+      // make sure link rows are up to date
+      row = await linkRows.updateLinks({
+        appId,
+        eventType: linkRows.EventType.ROW_SAVE,
+        row,
+        tableId: row.tableId,
+        table,
+      })
+
       for (let [fieldName, schema] of Object.entries(table.schema)) {
         // check whether the options need to be updated for inclusion as part of the data import
         if (
@@ -204,15 +214,18 @@ class TableSaveFunctions {
   }
 }
 
-exports.getExternalTable = async (appId, datasourceId, tableName) => {
+exports.getAllExternalTables = async (appId, datasourceId) => {
   const db = new CouchDB(appId)
   const datasource = await db.get(datasourceId)
   if (!datasource || !datasource.entities) {
     throw "Datasource is not configured fully."
   }
-  return Object.values(datasource.entities).find(
-    entity => entity.name === tableName
-  )
+  return datasource.entities
+}
+
+exports.getExternalTable = async (appId, datasourceId, tableName) => {
+  const entities = await exports.getAllExternalTables(appId, datasourceId)
+  return entities[tableName]
 }
 
 exports.TableSaveFunctions = TableSaveFunctions

@@ -5,6 +5,7 @@ const {
   getConfigParams,
   getGlobalUserParams,
   getScopedFullConfig,
+  getAllDbs,
 } = require("@budibase/auth").db
 const { Configs } = require("../../../constants")
 const email = require("../../../utilities/email")
@@ -98,18 +99,76 @@ exports.find = async function (ctx) {
   }
 }
 
-exports.publicSettings = async function (ctx) {
+exports.publicOidc = async function (ctx) {
   const db = new CouchDB(GLOBAL_DB)
   try {
     // Find the config with the most granular scope based on context
-    const config = await getScopedFullConfig(db, {
-      type: Configs.SETTINGS,
+    const oidcConfig = await getScopedFullConfig(db, {
+      type: Configs.OIDC,
     })
-    if (!config) {
+
+    if (!oidcConfig) {
       ctx.body = {}
     } else {
-      ctx.body = config
+      const partialOidcCofig = oidcConfig.config.configs.map(config => {
+        return {
+          logo: config.logo,
+          name: config.name,
+          uuid: config.uuid,
+        }
+      })
+      ctx.body = partialOidcCofig
     }
+  } catch (err) {
+    ctx.throw(err.status, err)
+  }
+}
+
+exports.publicSettings = async function (ctx) {
+  const db = new CouchDB(GLOBAL_DB)
+
+  try {
+    // Find the config with the most granular scope based on context
+    const publicConfig = await getScopedFullConfig(db, {
+      type: Configs.SETTINGS,
+    })
+
+    const googleConfig = await getScopedFullConfig(db, {
+      type: Configs.GOOGLE,
+    })
+
+    const oidcConfig = await getScopedFullConfig(db, {
+      type: Configs.OIDC,
+    })
+
+    let config = {}
+    if (!publicConfig) {
+      config = {
+        config: {},
+      }
+    } else {
+      config = publicConfig
+    }
+
+    // google button flag
+    if (googleConfig && googleConfig.config) {
+      const googleActivated =
+        googleConfig.config.activated == undefined || // activated by default for configs pre-activated flag
+        googleConfig.config.activated
+      config.config.google = googleActivated
+    } else {
+      config.config.google = false
+    }
+
+    // oidc button flag
+    if (oidcConfig && oidcConfig.config) {
+      const oidcActivated = oidcConfig.config.configs[0].activated
+      config.config.oidc = oidcActivated
+    } else {
+      config.config.oidc = false
+    }
+
+    ctx.body = config
   } catch (err) {
     ctx.throw(err.status, err)
   }
@@ -122,12 +181,8 @@ exports.upload = async function (ctx) {
   const file = ctx.request.files.file
   const { type, name } = ctx.params
 
-  const fileExtension = [...file.name.split(".")].pop()
-  // filenames converted to UUIDs so they are unique
-  const processedFileName = `${name}.${fileExtension}`
-
   const bucket = ObjectStoreBuckets.GLOBAL
-  const key = `${type}/${processedFileName}`
+  const key = `${type}/${name}`
   await upload({
     bucket,
     filename: key,
@@ -146,7 +201,7 @@ exports.upload = async function (ctx) {
     }
   }
   const url = `/${bucket}/${key}`
-  cfgStructure.config[`${name}Url`] = url
+  cfgStructure.config[`${name}`] = url
   // write back to db with url updated
   await db.put(cfgStructure)
 
@@ -175,8 +230,8 @@ exports.configChecklist = async function (ctx) {
     // TODO: Watch get started video
 
     // Apps exist
-    let allDbs = await CouchDB.allDbs()
-    const appDbNames = allDbs.filter(dbName => dbName.startsWith(APP_PREFIX))
+    let dbs = await getAllDbs()
+    const appDbNames = dbs.filter(dbName => dbName.startsWith(APP_PREFIX))
 
     // They have set up SMTP
     const smtpConfig = await getScopedFullConfig(db, {
@@ -184,10 +239,14 @@ exports.configChecklist = async function (ctx) {
     })
 
     // They have set up Google Auth
-    const oauthConfig = await getScopedFullConfig(db, {
+    const googleConfig = await getScopedFullConfig(db, {
       type: Configs.GOOGLE,
     })
 
+    // They have set up OIDC
+    const oidcConfig = await getScopedFullConfig(db, {
+      type: Configs.OIDC,
+    })
     // They have set up an admin user
     const users = await db.allDocs(
       getGlobalUserParams(null, {
@@ -200,7 +259,7 @@ exports.configChecklist = async function (ctx) {
       apps: appDbNames.length,
       smtp: !!smtpConfig,
       adminUser,
-      oauth: !!oauthConfig,
+      sso: !!googleConfig || !!oidcConfig,
     }
   } catch (err) {
     ctx.throw(err.status, err)

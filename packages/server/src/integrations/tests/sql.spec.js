@@ -62,12 +62,13 @@ describe("SQL query builder", () => {
   })
 
   it("should test a read with specific columns", () => {
+    const nameProp = `${TABLE_NAME}.name`, ageProp = `${TABLE_NAME}.age`
     const query = sql._query(generateReadJson({
-      fields: ["name", "age"]
+      fields: [nameProp, ageProp]
     }))
     expect(query).toEqual({
       bindings: [limit],
-      sql: `select "name", "age" from "${TABLE_NAME}" limit $1`
+      sql: `select "${TABLE_NAME}"."name" as "${nameProp}", "${TABLE_NAME}"."age" as "${ageProp}" from "${TABLE_NAME}" limit $1`
     })
   })
 
@@ -81,7 +82,7 @@ describe("SQL query builder", () => {
     }))
     expect(query).toEqual({
       bindings: ["John%", limit],
-      sql: `select * from "${TABLE_NAME}" where "name" like $1 limit $2`
+      sql: `select * from "${TABLE_NAME}" where "${TABLE_NAME}"."name" ilike $1 limit $2`
     })
   })
 
@@ -98,7 +99,7 @@ describe("SQL query builder", () => {
     }))
     expect(query).toEqual({
       bindings: [2, 10, limit],
-      sql: `select * from "${TABLE_NAME}" where "age" between $1 and $2 limit $3`
+      sql: `select * from "${TABLE_NAME}" where "${TABLE_NAME}"."age" between $1 and $2 limit $3`
     })
   })
 
@@ -114,7 +115,7 @@ describe("SQL query builder", () => {
     }))
     expect(query).toEqual({
       bindings: [10, "John", limit],
-      sql: `select * from "${TABLE_NAME}" where ("age" = $1) or ("name" = $2) limit $3`
+      sql: `select * from "${TABLE_NAME}" where ("${TABLE_NAME}"."age" = $1) or ("${TABLE_NAME}"."name" = $2) limit $3`
     })
   })
 
@@ -139,7 +140,7 @@ describe("SQL query builder", () => {
     }))
     expect(query).toEqual({
       bindings: ["John", 1001],
-      sql: `update "${TABLE_NAME}" set "name" = $1 where "id" = $2 returning *`
+      sql: `update "${TABLE_NAME}" set "name" = $1 where "${TABLE_NAME}"."id" = $2 returning *`
     })
   })
 
@@ -151,7 +152,7 @@ describe("SQL query builder", () => {
     }))
     expect(query).toEqual({
       bindings: [1001],
-      sql: `delete from "${TABLE_NAME}" where "id" = $1 returning *`
+      sql: `delete from "${TABLE_NAME}" where "${TABLE_NAME}"."id" = $1 returning *`
     })
   })
 

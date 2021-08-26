@@ -17,18 +17,18 @@ describe("Postgres Integration", () => {
 
   it("calls the create method with the correct params", async () => {
     const sql = "insert into users (name, age) values ('Joe', 123);"
-    const response = await config.integration.create({ 
+    await config.integration.create({
       sql
     })
-    expect(pg.queryMock).toHaveBeenCalledWith(sql, {})
+    expect(pg.queryMock).toHaveBeenCalledWith(sql, [])
   })
 
   it("calls the read method with the correct params", async () => {
     const sql = "select * from users;"
-    const response = await config.integration.read({ 
+    await config.integration.read({
       sql
     })
-    expect(pg.queryMock).toHaveBeenCalledWith(sql, {})
+    expect(pg.queryMock).toHaveBeenCalledWith(sql, [])
   })
 
   it("calls the update method with the correct params", async () => {
@@ -36,7 +36,7 @@ describe("Postgres Integration", () => {
     const response = await config.integration.update({ 
       sql
     })
-    expect(pg.queryMock).toHaveBeenCalledWith(sql, {})
+    expect(pg.queryMock).toHaveBeenCalledWith(sql, [])
   })
 
   it("calls the delete method with the correct params", async () => {
@@ -44,7 +44,7 @@ describe("Postgres Integration", () => {
     await config.integration.delete({
       sql
     })
-    expect(pg.queryMock).toHaveBeenCalledWith(sql, {})
+    expect(pg.queryMock).toHaveBeenCalledWith(sql, [])
   })
 
   describe("no rows returned", () => {

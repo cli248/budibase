@@ -1,8 +1,6 @@
 <script>
   import { Button, Icon, Drawer, Label } from "@budibase/bbui"
-  import { store, currentAsset } from "builderStore"
   import {
-    getBindableProperties,
     readableToRuntimeBinding,
     runtimeToReadableBinding,
   } from "builderStore/dataBinding"
@@ -18,21 +16,18 @@
   export let value = null
   export let props = {}
   export let onChange = () => {}
+  export let bindings = []
 
   let bindingDrawer
-  let temporaryBindableValue = value
   let anchor
   let valid
 
-  $: bindableProperties = getBindableProperties(
-    $currentAsset,
-    $store.selectedComponentId
-  )
-  $: safeValue = getSafeValue(value, props.defaultValue, bindableProperties)
-  $: replaceBindings = val => readableToRuntimeBinding(bindableProperties, val)
+  $: safeValue = getSafeValue(value, props.defaultValue, bindings)
+  $: tempValue = safeValue
+  $: replaceBindings = val => readableToRuntimeBinding(bindings, val)
 
   const handleClose = () => {
-    handleChange(temporaryBindableValue)
+    handleChange(tempValue)
     bindingDrawer.hide()
   }
 
@@ -61,8 +56,8 @@
 
   // The "safe" value is the value with any bindings made readable
   // If there is no value set, any default value is used
-  const getSafeValue = (value, defaultValue, bindableProperties) => {
-    const enriched = runtimeToReadableBinding(bindableProperties, value)
+  const getSafeValue = (value, defaultValue, bindings) => {
+    const enriched = runtimeToReadableBinding(bindings, value)
     return enriched == null && defaultValue !== undefined
       ? defaultValue
       : enriched
@@ -70,7 +65,7 @@
 </script>
 
 <div class="property-control" bind:this={anchor} data-cy={`setting-${key}`}>
-  {#if type !== "boolean"}
+  {#if type !== "boolean" && label}
     <div class="label">
       <Label>{label}</Label>
     </div>
@@ -83,6 +78,7 @@
       updateOnChange={false}
       on:change={handleChange}
       onChange={handleChange}
+      {bindings}
       name={key}
       text={label}
       {type}
@@ -107,9 +103,8 @@
           slot="body"
           bind:valid
           value={safeValue}
-          close={handleClose}
-          on:update={e => (temporaryBindableValue = e.detail)}
-          {bindableProperties}
+          on:change={e => (tempValue = e.detail)}
+          bindableProperties={bindings}
         />
       </Drawer>
     {/if}

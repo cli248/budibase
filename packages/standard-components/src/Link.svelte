@@ -14,7 +14,7 @@
   export let underline
   export let size
 
-  $: external = url && !url.startsWith("/")
+  $: external = url && typeof url === "string" && !url.startsWith("/")
   $: target = openInNewTab ? "_blank" : "_self"
   $: placeholder = $builderStore.inBuilder && !text
   $: componentText = $builderStore.inBuilder
@@ -74,12 +74,15 @@
 <style>
   a {
     color: var(--spectrum-alias-text-color);
-    display: inline-block;
-    white-space: pre-wrap;
+    white-space: nowrap;
+    transition: color 130ms ease-in-out;
+  }
+  a:hover {
+    color: var(--spectrum-global-color-blue-600) !important;
   }
   .placeholder {
     font-style: italic;
-    color: var(--grey-6);
+    color: var(--spectrum-global-color-gray-600);
   }
   .bold {
     font-weight: 600;

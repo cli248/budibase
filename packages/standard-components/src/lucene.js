@@ -13,9 +13,18 @@ export const buildLuceneQuery = filter => {
     notEmpty: {},
   }
   if (Array.isArray(filter)) {
-    // Build up proper range filters
     filter.forEach(expression => {
-      const { operator, field, type, value } = expression
+      let { operator, field, type, value } = expression
+      // Parse all values into correct types
+      if (type === "datetime" && value) {
+        value = new Date(value).toISOString()
+      }
+      if (type === "number") {
+        value = parseFloat(value)
+      }
+      if (type === "boolean") {
+        value = `${value}`?.toLowerCase() === "true"
+      }
       if (operator.startsWith("range")) {
         if (!query.range[field]) {
           query.range[field] = {
@@ -39,10 +48,10 @@ export const buildLuceneQuery = filter => {
           // Transform boolean filters to cope with null.
           // "equals false" needs to be "not equals true"
           // "not equals false" needs to be "equals true"
-          if (operator === "equal" && value === "false") {
-            query.notEqual[field] = "true"
-          } else if (operator === "notEqual" && value === "false") {
-            query.equal[field] = "true"
+          if (operator === "equal" && value === false) {
+            query.notEqual[field] = true
+          } else if (operator === "notEqual" && value === false) {
+            query.equal[field] = true
           } else {
             query[operator][field] = value
           }
@@ -82,6 +91,11 @@ export const luceneQuery = (docs, query) => {
     return !doc[key] || !doc[key].startsWith(value)
   })
 
+  // Process a fuzzy match (treat the same as starts with when running locally)
+  const fuzzyMatch = match("fuzzy", (key, value, doc) => {
+    return !doc[key] || !doc[key].startsWith(value)
+  })
+
   // Process a range match
   const rangeMatch = match("range", (key, value, doc) => {
     return !doc[key] || doc[key] < value.low || doc[key] > value.high
@@ -111,6 +125,7 @@ export const luceneQuery = (docs, query) => {
   const docMatch = doc => {
     return (
       stringMatch(doc) &&
+      fuzzyMatch(doc) &&
       rangeMatch(doc) &&
       equalMatch(doc) &&
       notEqualMatch(doc) &&

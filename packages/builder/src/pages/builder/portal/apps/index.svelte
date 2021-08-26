@@ -14,10 +14,11 @@
     Body,
   } from "@budibase/bbui"
   import CreateAppModal from "components/start/CreateAppModal.svelte"
+  import UpdateAppModal from "components/start/UpdateAppModal.svelte"
   import api, { del } from "builderStore/api"
   import analytics from "analytics"
   import { onMount } from "svelte"
-  import { apps, auth } from "stores/portal"
+  import { apps, auth, admin } from "stores/portal"
   import download from "downloadjs"
   import { goto } from "@roxi/routify"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
@@ -30,6 +31,7 @@
   let template
   let selectedApp
   let creationModal
+  let updatingModal
   let deletionModal
   let unpublishModal
   let creatingApp = false
@@ -157,11 +159,18 @@
         throw json.message
       }
       await apps.load()
+      // get checklist, just in case that was the last app
+      await admin.init()
       notifications.success("App deleted successfully")
     } catch (err) {
       notifications.error(`Error deleting app: ${err}`)
     }
     selectedApp = null
+  }
+
+  const updateApp = async app => {
+    selectedApp = app
+    updatingModal.show()
   }
 
   const releaseLock = async app => {
@@ -236,6 +245,7 @@
             {editApp}
             {exportApp}
             {deleteApp}
+            {updateApp}
           />
         {/each}
       </div>
@@ -288,6 +298,8 @@
 >
   Are you sure you want to unpublish the app <b>{selectedApp?.name}</b>?
 </ConfirmDialog>
+
+<UpdateAppModal app={selectedApp} bind:this={updatingModal} />
 
 <style>
   .title,

@@ -20,8 +20,10 @@
 
   export let value = []
   export let componentInstance
+  export let bindings = []
+
   let drawer
-  let tempValue = value
+  let tempValue = value || []
 
   $: numFilters = Array.isArray(tempValue)
     ? tempValue.length
@@ -31,15 +33,6 @@
   $: schemaFields = Object.values(schema || {})
   $: internalTable = dataSource?.type === "table"
 
-  // Reset value if value is wrong type for the datasource.
-  // Lucene editor needs an array, and simple editor needs an object.
-  $: {
-    if (!Array.isArray(value)) {
-      tempValue = []
-      dispatch("change", [])
-    }
-  }
-
   const saveFilter = async () => {
     dispatch("change", tempValue)
     notifications.success("Filters saved.")
@@ -47,20 +40,20 @@
   }
 </script>
 
-<ActionButton on:click={drawer.show}>Define Filters</ActionButton>
+<ActionButton on:click={drawer.show}>Define filters</ActionButton>
 <Drawer bind:this={drawer} title="Filtering">
   <Button cta slot="buttons" on:click={saveFilter}>Save</Button>
   <DrawerContent slot="body">
-    <Layout>
+    <Layout noPadding>
       <Body size="S">
         {#if !numFilters}
           Add your first filter column.
         {:else}
           Results are filtered to only those which match all of the following
-          constaints.
+          constraints.
         {/if}
       </Body>
-      <LuceneFilterBuilder bind:value={tempValue} {schemaFields} />
+      <LuceneFilterBuilder bind:value={tempValue} {schemaFields} {bindings} />
     </Layout>
   </DrawerContent>
 </Drawer>
